@@ -49,19 +49,38 @@ class Crawler {
     {
         $this->crawler = $this->client->request('GET', self::CURRENT_ORDER_URL);
         //$res = $this->crawler->filter('table.standard > tr > td.order_clm')->text();
-        $res = $this->crawler->filter('table.standard > tr')->each(function($node){
-            $item = $node->filter('td.order_clm p.name_clm');
-            if ($item->getNode(0)) {
-//                var_dump($item->text());
-                return [$item->text()];
-            }
-        });
+        $standard_orders = $this->getOrder('standard');
+        $auto_orders =  $this->getOrder('auto_order');
+        return [
+            "standard_orders" => $standard_orders,
+            "auto_orders" => $auto_orders,
+        ];
+    }
 
-        var_dump($res);
+    protected function getOrder($parent)
+    {
+        return $this->crawler->filter("table.{$parent}> tr")->reduce(function($node){
+            $item = $node->filter('td.order_clm p.name_clm');
+            return (boolean)$item->getNode(0);
+        })->each(function($node){
+            $item = [
+                'name' => '',
+                'price' => '',
+                'quantity' => '',
+            ];
+
+            $item['name'] = $node->filter('td.order_clm p.name_clm')->text();
+            $item['price'] = $node->filter('td.price_clm')->text();
+            $item['price'] = trim($item['price']);
+            $item['quantity']  = (int)$node->filter('input.quantity')->attr('value');
+            return $item;
+        });
     }
 
     public function getPreviousOrder()
     {
+        $this->client->request('GET', self::PREVIOUS_ORDER_URL);
+        //var_dump($this->client->getResponse());
 
     }
 

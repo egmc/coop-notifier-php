@@ -9,13 +9,11 @@ $coop = new \Coop\Crawler();
 $coop->login($config['coop-user'], $config['coop-pass']);
 $current_orders = $coop->getCurrentOrder();
 
-//$res = $coop->getClient()->getResponse()->getContent();
-//echo $res;
+$mailer = Swift_Mailer::newInstance(Swift_MailTransport::newInstance());
+$message = \Swift_Message::newInstance();
+$message->setTo('eg2mix@gmail.com');
+$message->setFrom('coop@eg2mix.com');
+$message->setSubject('コープさんレター');
+$message->setBody(\Coop\Notifier::formatMessage($current_orders));
 
-//$client->request('GET', 'https://nb.cws.coop/coopnet/bill/nb/deliveryDetailsListInit.do');
-
-// トップ
-//$client->request('GET', 'https://www.cws.coop/coopnet/ec/bb/ecTopInit.do?sid=coopnet01');
-
-//$client->request('GET', 'https://www.cws.coop/coopnet/ec/bb/orderHistoryInit.do?sid=ComEcF00BB010&tcd=tcdcp003');
-
+$mailer->send($message);
