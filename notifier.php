@@ -11,9 +11,9 @@ $current_orders = $coop->getCurrentOrder();
 
 $mailer = Swift_Mailer::newInstance(Swift_MailTransport::newInstance());
 $message = \Swift_Message::newInstance();
-$message->setTo('eg2mix@gmail.com');
-$message->setFrom('coop@eg2mix.com');
-$message->setSubject('コープさんレター');
+$message->setTo($config['mail-to']);
+$message->setFrom($config['mail-from']);
+$message->setSubject('コープさん便り');
 $message->setBody(\Coop\Notifier::formatMessage($current_orders));
 
 $mailer->send($message);
