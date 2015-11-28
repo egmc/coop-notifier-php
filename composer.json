@@ -1,0 +1,20 @@
+{
+  "name": "egmc/coop-notifier-php",
+  "description": "coop notifier",
+  "require": {
+    "fabpot/goutte": "~3.1",
+    "symfony/yaml": "~2.7.7",
+    "swiftmailer/swiftmailer": "~5.4.1"
+  },
+  "authors": [
+    {
+      "name": "egmc",
+      "email": "waltz4debby@eg2mix.com"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "Coop": "lib"
+    }
+  }
+}
