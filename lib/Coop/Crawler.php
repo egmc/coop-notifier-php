@@ -13,6 +13,10 @@ class Crawler {
 
     const LOGIN_URL = 'https://www.cws.coop/coopnet/auth/bb/login.do?from=coopnet-ec';
 
+    const CURRENT_ORDER_URL = 'https://www.cws.coop/coopnet/ec/bb/orderListDetailInit.do?sid=ComEcF00BB010&tcd=tcdcp005';
+
+    const PREVIOUS_ORDER_URL = 'https://nb.cws.coop/coopnet/bill/nb/deliveryDetailsListInit.do';
+
     protected $crawler;
     protected $client;
 
@@ -43,7 +47,17 @@ class Crawler {
 
     public function getCurrentOrder()
     {
+        $this->crawler = $this->client->request('GET', self::CURRENT_ORDER_URL);
+        //$res = $this->crawler->filter('table.standard > tr > td.order_clm')->text();
+        $res = $this->crawler->filter('table.standard > tr')->each(function($node){
+            $item = $node->filter('td.order_clm p.name_clm');
+            if ($item->getNode(0)) {
+//                var_dump($item->text());
+                return [$item->text()];
+            }
+        });
 
+        var_dump($res);
     }
 
     public function getPreviousOrder()

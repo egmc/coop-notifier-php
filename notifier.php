@@ -7,10 +7,10 @@ $config = (new Parser())->parse(file_get_contents(__DIR__ . "/notifier.yaml"));
 
 $coop = new \Coop\Crawler();
 $coop->login($config['coop-user'], $config['coop-pass']);
+$current_orders = $coop->getCurrentOrder();
 
-
-$res = $coop->getClient()->getResponse()->getContent();
-echo $res;
+//$res = $coop->getClient()->getResponse()->getContent();
+//echo $res;
 
 //$client->request('GET', 'https://nb.cws.coop/coopnet/bill/nb/deliveryDetailsListInit.do');
 
