@@ -1,7 +1,10 @@
 <?php
 namespace Coop;
 class Notifier {
-    public static function formatMessage($data, $data_prev)
+
+    const ORDER_URL = 'https://www.cws.coop/coopnet/ec/bb/ecTopInit.do?sid=ComEcF00BB010&tcd=tcdhd001';
+
+    public static function formatMessage($data, $data_prev, $events)
     {
         $body = "";
 
@@ -34,6 +37,16 @@ class Notifier {
         foreach($data_prev['auto_orders'] as $order) {
             $body .= "・{$order['name']}\t{$order['price']}\t{$order['quantity']}個\n";
         }
+        $body .= "\n";
+        $body .= "予定はこんな感じ\n";
+        $body .= "------------------------\n";
+        foreach($events as $event) {
+            $body .= "・{$event['title']} {$event['start']} - {$event['end']}\n";
+        }
+        $body .= "\n";
+        $body .= "注文する？\n";
+        $body .= self::ORDER_URL;
+
         return $body;
     }
 }

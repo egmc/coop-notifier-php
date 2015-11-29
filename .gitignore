@@ -3,3 +3,4 @@ vendor
 .settings
 .buildpath
 notifier.yaml
+credential.json

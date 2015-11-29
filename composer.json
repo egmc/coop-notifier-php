@@ -2,9 +2,10 @@
   "name": "egmc/coop-notifier-php",
   "description": "coop notifier",
   "require": {
-    "fabpot/goutte": "~3.1",
+    "fabpot/goutte": "~2.0.4",
     "symfony/yaml": "~2.7.7",
-    "swiftmailer/swiftmailer": "~5.4.1"
+    "swiftmailer/swiftmailer": "~5.4.1",
+    "google/apiclient": "^2.0.0@RC"
   },
   "authors": [
     {
