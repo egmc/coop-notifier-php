@@ -39,7 +39,9 @@ class Calendar {
         $events = $this->service->events->listEvents(self::CAL_ID, [
             'timeMin' => $date_from,
             'timeMax' => $date_to,
-//            'orderBy' => 'startTime',
+            'singleEvents' =>true,
+            'orderBy' => 'startTime',
+
         ]);
         foreach ($events as $event) {
             $item = [
