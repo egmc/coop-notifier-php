@@ -5,6 +5,11 @@ use Google_Client;
 use Google_Service_Calendar;
 use DateTime;
 
+/**
+ * Class Calendar
+ *
+ * @package Coop
+ */
 class Calendar {
 
     protected $service;

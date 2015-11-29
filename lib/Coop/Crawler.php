@@ -49,12 +49,9 @@ class Crawler {
     {
         $this->randomSleep();
 
-        $deadline_date = "";
-        $delivery_expected_date = "";
         $this->crawler = $this->client->request('GET', self::CURRENT_ORDER_URL);
 
         $deadline_date = $this->crawler->filter('div#close_date_pane  dd')->first()->text();
-
         $delivery_expected_date = $this->crawler->filter('div#close_date_pane  dd.delivery')->first()->text();
 
         $standard_orders = $this->getOrder('standard');
@@ -120,6 +117,6 @@ class Crawler {
 
     protected function randomSleep()
     {
-//        sleep(rand(1,3));
+        sleep(rand(1,3));
     }
 }
