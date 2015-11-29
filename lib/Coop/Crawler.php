@@ -15,7 +15,7 @@ class Crawler {
 
     const CURRENT_ORDER_URL = 'https://www.cws.coop/coopnet/ec/bb/orderListDetailInit.do?sid=ComEcF00BB010&tcd=tcdcp005';
 
-    const PREVIOUS_ORDER_URL = 'https://nb.cws.coop/coopnet/bill/nb/deliveryDetailsListInit.do';
+    const PREVIOUS_ORDER_URL = 'https://www.cws.coop/coopnet/ec/bb/orderHistoryInit.do?sid=ComEcF02BB010&tcd=tcdcp003';
 
     protected $crawler;
     protected $client;
@@ -26,7 +26,7 @@ class Crawler {
         $this->client->setHeader('User-Agent', self::UA);
     }
 
-    public function login ($user, $pass)
+    public function login($user, $pass)
     {
         $crawler = $this->client->request('GET', self::LOGIN_URL);
 
@@ -47,22 +47,35 @@ class Crawler {
 
     public function getCurrentOrder()
     {
+        $this->randomSleep();
+
+        $deadline_date = "";
+        $delivery_expected_date = "";
         $this->crawler = $this->client->request('GET', self::CURRENT_ORDER_URL);
-        //$res = $this->crawler->filter('table.standard > tr > td.order_clm')->text();
+
+        $deadline_date = $this->crawler->filter('div#close_date_pane  dd')->first()->text();
+
+        $delivery_expected_date = $this->crawler->filter('div#close_date_pane  dd.delivery')->first()->text();
+
         $standard_orders = $this->getOrder('standard');
         $auto_orders =  $this->getOrder('auto_order');
         return [
+            "deadline_date" => $deadline_date,
+            "delivery_expected_date" => $delivery_expected_date,
             "standard_orders" => $standard_orders,
             "auto_orders" => $auto_orders,
         ];
     }
 
-    protected function getOrder($parent)
+    protected function getOrder($parent, $previous = false)
     {
-        return $this->crawler->filter("table.{$parent}> tr")->reduce(function($node){
+        if (!$this->crawler->filter("table.{$parent} tr")->first()) {
+            return [];
+        }
+        return $this->crawler->filter("table.{$parent} tr")->reduce(function($node){
             $item = $node->filter('td.order_clm p.name_clm');
             return (boolean)$item->getNode(0);
-        })->each(function($node){
+        })->each(function($node) use ($previous) {
             $item = [
                 'name' => '',
                 'price' => '',
@@ -72,19 +85,41 @@ class Crawler {
             $item['name'] = $node->filter('td.order_clm p.name_clm')->text();
             $item['price'] = $node->filter('td.price_clm')->text();
             $item['price'] = trim($item['price']);
-            $item['quantity']  = (int)$node->filter('input.quantity')->attr('value');
+            if (!$previous) {
+                $item['quantity']  = (int)$node->filter('.quantity')->attr('value');
+            } else {
+                $item['quantity']  = (int)$node->filter('.quantity_clm')->text();
+            }
             return $item;
         });
     }
 
     public function getPreviousOrder()
     {
-        $this->client->request('GET', self::PREVIOUS_ORDER_URL);
-        //var_dump($this->client->getResponse());
+        $this->randomSleep();
 
+        $this->crawler = $this->client->request('GET', self::PREVIOUS_ORDER_URL);
+
+        $delivery_expected_date = $this->crawler->filter('div.shipping_state .delivery')->text();
+        $delivery_expected_date = trim(preg_replace('/(\s)+※.+/' ,'', $delivery_expected_date));
+        $delivery_expected_date = str_replace('お届け予定日：', '', $delivery_expected_date);
+        $standard_orders = $this->getOrder('standard', true);
+        $auto_orders =  $this->getOrder('auto_order', true);
+        return [
+            "delivery_expected_date" => $delivery_expected_date,
+            "standard_orders" => $standard_orders,
+            "auto_orders" => $auto_orders,
+        ];
     }
 
-    public function getClient() {
+
+    public function getClient()
+    {
         return $this->client;
+    }
+
+    protected function randomSleep()
+    {
+//        sleep(rand(1,3));
     }
 }
