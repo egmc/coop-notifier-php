@@ -35,8 +35,7 @@ class Calendar {
 
         $date_from = (new DateTime)->modify("Monday next week")->format(DateTime::RFC3339);
         $date_to = (new DateTime($date_from))->modify("Tuesday next week")->format(DateTime::RFC3339);
-        echo $date_from, "\n" ;
-        echo $date_to, "\n";
+
         $events = $this->service->events->listEvents(self::CAL_ID, [
             'timeMin' => $date_from,
             'timeMax' => $date_to,
