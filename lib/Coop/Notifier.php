@@ -2,7 +2,7 @@
 namespace Coop;
 class Notifier {
 
-    const ORDER_URL = 'https://www.cws.coop/coopnet/ec/bb/ecTopInit.do?sid=ComEcF00BB010&tcd=tcdhd001';
+    const ORDER_URL = 'https://weekly.coopdeli.jp/order/index.html';
 
     public static function formatMessage($data, $data_prev, $events)
     {
