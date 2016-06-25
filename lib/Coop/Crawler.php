@@ -13,9 +13,10 @@ class Crawler {
 
     const LOGIN_URL = 'https://ec.coopdeli.jp/auth/login.html';
 
-    const CURRENT_ORDER_URL = 'https://weekly.coopdeli.jp/order/index.html?osk=20160701&odc=5278637';
+    const CURRENT_ORDER_URL = 'https://weekly.coopdeli.jp/order/index.html';
 
-    const PREVIOUS_ORDER_URL = 'https://www.cws.coop/coopnet/ec/bb/orderHistoryInit.do?sid=ComEcF02BB010&tcd=tcdcp003';
+    const PREVIOUS_ORDER_URL = 'https://weekly.coopdeli.jp/order/index.html
+';
 
     protected $crawler;
     protected $client;
@@ -91,7 +92,7 @@ class Crawler {
             if (!$previous) {
                 $item['quantity']  = (int)$node->filter('.cartItemQty input')->attr('value');
             } else {
-                $item['quantity']  = (int)$node->filter('.quantity_clm')->text();
+                $item['quantity']  = (int)$node->filter('.cartItemQty')->text();
             }
             return $item;
         });
@@ -102,6 +103,22 @@ class Crawler {
         $delivery_expected_date ='';
         $standard_orders = $auto_orders = [];
 
+        $this->crawler = $this->client->request('GET', self::CURRENT_ORDER_URL);
+
+        $form = $this->crawler->filter('#WECPWA0010')->form();
+
+        $prev = $this->crawler->filter('.weekOrderSelect select option')->eq(1)->attr('value');
+        //echo $prev;
+
+        $form->disableValidation()->setValues(['osk'=> $prev, 'curosk' => $prev, 'odc' => $form->getValues()['curodc']]);
+
+        //var_dump($form->getValues());
+
+        $this->crawler = $this->client->submit($form);
+
+
+        $delivery_expected_date = $this->crawler->filter('div#cartOrderStatus div dl dd')->eq(2)->text();
+
 //        $this->randomSleep();
 //
 //        $this->crawler = $this->client->request('GET', self::PREVIOUS_ORDER_URL);
@@ -109,8 +126,8 @@ class Crawler {
 //        $delivery_expected_date = $this->crawler->filter('div.shipping_state .delivery')->text();
 //        $delivery_expected_date = trim(preg_replace('/(\s)+※.+/' ,'', $delivery_expected_date));
 //        $delivery_expected_date = str_replace('お届け予定日：', '', $delivery_expected_date);
-//        $standard_orders = $this->getOrder('standard', true);
-//        $auto_orders =  $this->getOrder('auto_order', true);
+        $standard_orders = $this->getOrder('normal', true);
+        //$auto_orders =  $this->getOrder('auto_order', true);
         return [
             "delivery_expected_date" => $delivery_expected_date,
             "standard_orders" => $standard_orders,
