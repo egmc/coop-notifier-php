@@ -15,9 +15,6 @@ class Crawler {
 
     const CURRENT_ORDER_URL = 'https://weekly.coopdeli.jp/order/index.html';
 
-    const PREVIOUS_ORDER_URL = 'https://weekly.coopdeli.jp/order/index.html
-';
-
     protected $crawler;
     protected $client;
 
@@ -102,17 +99,24 @@ class Crawler {
     {
         $delivery_expected_date ='';
         $standard_orders = $auto_orders = [];
+        $prev = '';
 
         $this->crawler = $this->client->request('GET', self::CURRENT_ORDER_URL);
 
         $form = $this->crawler->filter('#WECPWA0010')->form();
 
-        $prev = $this->crawler->filter('.weekOrderSelect select option')->eq(1)->attr('value');
-        //echo $prev;
+        $current = $this->crawler->filter('.weekOrderSelect select option')->reduce(function($node){
+            return $node->attr('selected') == 'selected';
+        })->attr('value');
+
+        $prev = $this->crawler->filter('.weekOrderSelect select option')->each(function($node) use ($current) {
+            if ($node->attr('value') < $current) {
+                return $node->attr('value');
+            }
+        });
+        $prev = array_values(array_filter($prev))[0];
 
         $form->disableValidation()->setValues(['osk'=> $prev, 'curosk' => $prev, 'odc' => $form->getValues()['curodc']]);
-
-        //var_dump($form->getValues());
 
         $this->crawler = $this->client->submit($form);
 
@@ -120,12 +124,6 @@ class Crawler {
         $delivery_expected_date = $this->crawler->filter('div#cartOrderStatus div dl dd')->eq(2)->text();
 
 //        $this->randomSleep();
-//
-//        $this->crawler = $this->client->request('GET', self::PREVIOUS_ORDER_URL);
-//
-//        $delivery_expected_date = $this->crawler->filter('div.shipping_state .delivery')->text();
-//        $delivery_expected_date = trim(preg_replace('/(\s)+※.+/' ,'', $delivery_expected_date));
-//        $delivery_expected_date = str_replace('お届け予定日：', '', $delivery_expected_date);
         $standard_orders = $this->getOrder('normal', true);
         //$auto_orders =  $this->getOrder('auto_order', true);
         return [

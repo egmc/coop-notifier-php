@@ -2,7 +2,7 @@
 namespace Coop;
 class Notifier {
 
-    const ORDER_URL = 'https://weekly.coopdeli.jp/order/index.html';
+    const ORDER_URL = 'https://weekly.coopdeli.jp/index.html';
 
     public static function formatMessage($data, $data_prev, $events)
     {
