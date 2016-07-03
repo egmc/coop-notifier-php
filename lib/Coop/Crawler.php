@@ -75,7 +75,7 @@ class Crawler {
         //var_dump($nodes);
         return $this->crawler->filter("table#wecpwa0010_{$parent} tbody tr")->reduce(function($node) {
             $item = $node->filter('tr.cartSubs');
-            return (boolean)$item->getNode(0) === false;
+            return count($item) === 0;
         })->each(function($node) use ($previous) {
             $item = [
                 'name' => '',
