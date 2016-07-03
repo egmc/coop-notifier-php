@@ -105,16 +105,10 @@ class Crawler {
 
         $form = $this->crawler->filter('#WECPWA0010')->form();
 
-        $current = $this->crawler->filter('.weekOrderSelect select option')->reduce(function($node){
-            return $node->attr('selected') == 'selected';
+        $prev = $this->crawler->filter('.weekOrderSelect select option')->reduce(function($node, $i){
+            // 直前のノードがselected
+            return (count($node->previousAll()) && $node->previousAll()->first()->attr('selected') == 'selected');
         })->attr('value');
-
-        $prev = $this->crawler->filter('.weekOrderSelect select option')->each(function($node) use ($current) {
-            if ($node->attr('value') < $current) {
-                return $node->attr('value');
-            }
-        });
-        $prev = array_values(array_filter($prev))[0];
 
         $form->disableValidation()->setValues(['osk'=> $prev, 'curosk' => $prev, 'odc' => $form->getValues()['curodc']]);
 
