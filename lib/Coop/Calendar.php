@@ -14,14 +14,16 @@ class Calendar {
 
     protected $service;
 
-    const CAL_ID = 're04gd89jcpos82cacah5fcqrc@group.calendar.google.com';
+    protected $calendar_id;
 
-    public function __construct()
+    public function __construct($credntial_path, $calendar_id)
     {
         $scopes = ['https://www.googleapis.com/auth/calendar'];
 
+        $this->calendar_id = $calendar_id;
+
         $client = new Google_Client();
-        $client->setAuthConfigFile(__DIR__ . '/../../credential.json');
+        $client->setAuthConfigFile($credntial_path);
         $client->setApplicationName("coop-notifier");
         $client->setScopes($scopes);
 
@@ -36,7 +38,7 @@ class Calendar {
         $date_from = (new DateTime)->modify("Monday next week")->format(DateTime::RFC3339);
         $date_to = (new DateTime($date_from))->modify("Tuesday next week")->format(DateTime::RFC3339);
 
-        $events = $this->service->events->listEvents(self::CAL_ID, [
+        $events = $this->service->events->listEvents($this->calendar_id, [
             'timeMin' => $date_from,
             'timeMax' => $date_to,
             'singleEvents' =>true,

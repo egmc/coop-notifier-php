@@ -10,7 +10,7 @@ $coop->login($config['coop-user'], $config['coop-pass']);
 $current_orders = $coop->getCurrentOrder();
 $previous_orders = $coop->getPreviousOrder();
 
-$cal = new \Coop\Calendar();
+$cal = new \Coop\Calendar(__DIR__ . "/credential.json", $config['calendar_id']);
 $events = $cal->getEvents();
 
 $mailer = Swift_Mailer::newInstance(Swift_MailTransport::newInstance());
